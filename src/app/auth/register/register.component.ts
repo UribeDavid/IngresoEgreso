@@ -1,7 +1,13 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+
+import { Store } from '@ngrx/store';
+import { Subscription } from 'rxjs';
+import { AppState } from 'src/app/app.reducer';
+
 import { AuthService } from 'src/app/services/auth.service';
+import { isLoading, stopLoading } from 'src/app/shared/ui.actions';
 
 import Swal from 'sweetalert2';
 
@@ -11,13 +17,20 @@ import Swal from 'sweetalert2';
   styles: [
   ]
 })
-export class RegisterComponent implements OnInit {
+export class RegisterComponent implements OnInit, OnDestroy {
 
   registroForm: FormGroup;
+  isLoading: boolean = false;
+  isLoadingSubscription: Subscription;
 
   constructor( private formBuilder: FormBuilder,
+               private store: Store<AppState>,
                private _authService: AuthService,
-               private router: Router) { }
+               private router: Router) { 
+    this.isLoadingSubscription = this.store.select('ui').subscribe( ui => {
+      this.isLoading = ui.isLoading;
+    });
+  }
 
   ngOnInit(): void {
     this.initForm();
@@ -34,27 +47,35 @@ export class RegisterComponent implements OnInit {
   crearUsuario() {
 
     if ( this.registroForm.invalid ) return;
+
+    this.store.dispatch( isLoading() );
     
-    Swal.fire({
+    /* Swal.fire({
       title: 'Cargando...',
       text: '',
       didOpen: () => {
         Swal.showLoading()
       }
-    });
+    }); */
     
     const { nombre, correo, password } = this.registroForm.value;
 
     this._authService.crearUsuario(nombre, correo, password)
         .then( credenciales => {
           console.log(credenciales)
+          this.store.dispatch( stopLoading() );
           this.router.navigate(['/']);
-          Swal.close();
+          // Swal.close();
         })
         .catch( err => {
           console.log(err)
+          this.store.dispatch( stopLoading() );
           Swal.fire('¡Error!', err.message, 'error');
         });
+  }
+
+  ngOnDestroy() {
+    if (this.isLoadingSubscription) this.isLoadingSubscription.unsubscribe();
   }
 
 }

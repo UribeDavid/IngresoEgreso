@@ -20,6 +20,8 @@
     "@angular/platform-browser": "~11.0.5",
     "@angular/platform-browser-dynamic": "~11.0.5",
     "@angular/router": "~11.0.5",
+    "@ngrx/store": "^11.1.1",
+    "@ngrx/store-devtools": "^11.1.1",
     "@sweetalert2/ngx-sweetalert2": "^10.0.0",
     "bootstrap": "^5.1.0",
     "firebase": "^7.0 || ^8.0",

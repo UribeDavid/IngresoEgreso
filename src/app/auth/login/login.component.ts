@@ -47,20 +47,11 @@ export class LoginComponent implements OnInit, OnDestroy {
 
     this.store.dispatch( isLoading() );
 
-    /* Swal.fire({
-      title: 'Cargando...',
-      text: '',
-      didOpen: () => {
-        Swal.showLoading()
-      }
-    }); */
-
     const { email, password } = this.loginForm.value;
     this._authService.loginUsuario(email, password)
         .then( result => {
           this.store.dispatch( stopLoading() );
           this.router.navigate(['/']);
-          // Swal.close();
         })
         .catch( err => {
           console.log(err)
@@ -70,7 +61,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    if (this.isLoadingSubscription) this.isLoadingSubscription.unsubscribe();
+    this.isLoadingSubscription?.unsubscribe();
   }
 
 }
